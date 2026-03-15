@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VIBE — Creator Ka Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Space+Grotesk:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #050508;
+    --neon-green: #00ff88;
+    --neon-purple: #bf00ff;
+    --neon-pink: #ff006e;
+    --neon-blue: #00d4ff;
+    --dark-card: #0d0d14;
+    --border: rgba(0,255,136,0.15);
+    --text-dim: rgba(255,255,255,0.5);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* NOISE TEXTURE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* GRID BACKGROUND */
+  .grid-bg {
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(5,5,8,0.8);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    letter-spacing: 4px;
+    color: var(--neon-green);
+    text-shadow: 0 0 30px rgba(0,255,136,0.8), 0 0 60px rgba(0,255,136,0.4);
+    animation: logoPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes logoPulse {
+    0%, 100% { text-shadow: 0 0 30px rgba(0,255,136,0.8), 0 0 60px rgba(0,255,136,0.4); }
+    50% { text-shadow: 0 0 50px rgba(0,255,136,1), 0 0 100px rgba(0,255,136,0.6); }
+  }
+
+  .nav-badge {
+    background: rgba(0,255,136,0.1);
+    border: 1px solid var(--neon-green);
+    color: var(--neon-green);
+    padding: 8px 20px;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .nav-badge:hover {
+    background: var(--neon-green);
+    color: var(--black);
+    box-shadow: 0 0 30px rgba(0,255,136,0.5);
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 120px 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(0,255,136,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    animation: glowPulse 4s ease-in-out infinite;
+  }
+
+  @keyframes glowPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.7; }
+  }
+
+  .hero-tag {
+    display: inline-block;
+    background: rgba(191,0,255,0.15);
+    border: 1px solid rgba(191,0,255,0.4);
+    color: #d966ff;
+    padding: 6px 18px;
+    border-radius: 100px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+    animation: fadeInDown 0.8s ease forwards;
+  }
+
+  @keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(4rem, 12vw, 9rem);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+    animation: fadeInUp 0.8s ease 0.2s both;
+  }
+
+  .hero h1 .line1 { color: #fff; }
+  .hero h1 .line2 {
+    color: var(--neon-green);
+    text-shadow: 0 0 40px rgba(0,255,136,0.6);
+  }
+  .hero h1 .line3 { color: #fff; }
+
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-sub {
+    font-size: clamp(1rem, 2.5vw, 1.3rem);
+    color: var(--text-dim);
+    max-width: 580px;
+    line-height: 1.7;
+    margin: 30px auto;
+    animation: fadeInUp 0.8s ease 0.4s both;
+  }
+
+  .hero-sub span {
+    color: var(--neon-green);
+    font-weight: 600;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.8s ease 0.6s both;
+  }
+
+  .btn-primary {
+    background: var(--neon-green);
+    color: var(--black);
+    border: none;
+    padding: 16px 40px;
+    border-radius: 4px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+    box-shadow: 0 0 30px rgba(0,255,136,0.4);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 50px rgba(0,255,136,0.7);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 16px 40px;
+    border-radius: 4px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.3s;
+    text-transform: uppercase;
+  }
+
+  .btn-secondary:hover {
+    border-color: var(--neon-green);
+    color: var(--neon-green);
+  }
+
+  .hero-counter {
+    margin-top: 50px;
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+    animation: fadeInUp 0.8s ease 0.8s both;
+  }
+
+  .counter-item {
+    text-align: center;
+  }
+
+  .counter-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.5rem;
+    color: var(--neon-green);
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(0,255,136,0.5);
+  }
+
+  .counter-label {
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* PROBLEM SECTION */
+  .section {
+    padding: 100px 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--neon-pink);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 0;
+  }
+
+  /* PROBLEM CARDS */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2px;
+    margin-top: 60px;
+    border: 1px solid var(--border);
+  }
+
+  .problem-card {
+    background: var(--dark-card);
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+
+  .problem-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--neon-pink);
+    transform: scaleX(0);
+    transition: transform 0.3s;
+  }
+
+  .problem-card:hover::before { transform: scaleX(1); }
+  .problem-card:hover { background: #10101a; }
+
+  .problem-icon {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+  }
+
+  .problem-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #fff;
+  }
+
+  .problem-card p {
+    color: var(--text-dim);
+    line-height: 1.7;
+    font-size: 0.95rem;
+  }
+
+  .problem-card .stat {
+    margin-top: 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--neon-pink);
+    text-shadow: 0 0 20px rgba(255,0,110,0.5);
+  }
+
+  /* FEATURES */
+  .features-section {
+    padding: 100px 20px;
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(180deg, transparent, rgba(0,255,136,0.02), transparent);
+  }
+
+  .features-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .feature-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+    margin-bottom: 100px;
+  }
+
+  .feature-row.reverse { direction: rtl; }
+  .feature-row.reverse > * { direction: ltr; }
+
+  .feature-visual {
+    background: var(--dark-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 50px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, rgba(0,255,136,0.05), transparent 70%);
+  }
+
+  .feature-big-icon {
+    font-size: 5rem;
+    display: block;
+    margin-bottom: 20px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .feature-visual-text {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3rem;
+    color: var(--neon-green);
+    text-shadow: 0 0 30px rgba(0,255,136,0.6);
+  }
+
+  .feature-content .feature-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    color: var(--neon-green);
+    letter-spacing: 3px;
+    margin-bottom: 12px;
+    opacity: 0.6;
+  }
+
+  .feature-content h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+
+  .feature-content h2 em {
+    font-style: normal;
+    color: var(--neon-green);
+    text-shadow: 0 0 20px rgba(0,255,136,0.5);
+  }
+
+  .feature-content p {
+    color: var(--text-dim);
+    line-height: 1.8;
+    font-size: 1rem;
+    margin-bottom: 24px;
+  }
+
+  .feature-points {
+    list-style: none;
+  }
+
+  .feature-points li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.8);
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .feature-points li::before {
+    content: '▸';
+    color: var(--neon-green);
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  /* COMPARISON */
+  .compare-section {
+    padding: 100px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .compare-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 60px;
+  }
+
+  .compare-table th {
+    padding: 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    text-align: center;
+  }
+
+  .compare-table th:nth-child(2) { color: var(--text-dim); }
+  .compare-table th:nth-child(3) {
+    color: var(--neon-green);
+    text-shadow: 0 0 20px rgba(0,255,136,0.5);
+  }
+
+  .compare-table td {
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    font-size: 0.95rem;
+    text-align: center;
+  }
+
+  .compare-table td:first-child {
+    text-align: left;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .compare-table td:nth-child(2) { color: rgba(255,100,100,0.8); }
+
+  .compare-table td:nth-child(3) {
+    color: var(--neon-green);
+    font-weight: 600;
+  }
+
+  .compare-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* WAITLIST */
+  .waitlist-section {
+    padding: 120px 20px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .waitlist-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 400px;
+    background: radial-gradient(ellipse, rgba(191,0,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .waitlist-inner {
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .og-badge-display {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, rgba(191,0,255,0.2), rgba(0,255,136,0.1));
+    border: 1px solid rgba(191,0,255,0.4);
+    padding: 12px 24px;
+    border-radius: 100px;
+    margin-bottom: 40px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .og-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--neon-green);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--neon-green);
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .waitlist-section h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(3rem, 8vw, 6rem);
+    line-height: 0.95;
+    margin-bottom: 20px;
+  }
+
+  .waitlist-section h2 .highlight {
+    color: var(--neon-green);
+    text-shadow: 0 0 40px rgba(0,255,136,0.6);
+  }
+
+  .waitlist-section p {
+    color: var(--text-dim);
+    font-size: 1.1rem;
+    margin-bottom: 50px;
+    line-height: 1.7;
+  }
+
+  .waitlist-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .form-input {
+    background: var(--dark-card);
+    border: 1px solid var(--border);
+    color: #fff;
+    padding: 16px 20px;
+    border-radius: 4px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem;
+    transition: all 0.3s;
+    outline: none;
+    width: 100%;
+  }
+
+  .form-input::placeholder { color: var(--text-dim); }
+
+  .form-input:focus {
+    border-color: var(--neon-green);
+    box-shadow: 0 0 20px rgba(0,255,136,0.2);
+  }
+
+  .form-submit {
+    background: var(--neon-green);
+    color: var(--black);
+    border: none;
+    padding: 18px;
+    border-radius: 4px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 0 30px rgba(0,255,136,0.4);
+  }
+
+  .form-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0 60px rgba(0,255,136,0.7);
+  }
+
+  .form-note {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-top: 12px;
+  }
+
+  /* PROGRESS BAR */
+  .progress-container {
+    margin: 50px 0;
+    text-align: left;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 0.85rem;
+  }
+
+  .progress-label span:first-child { color: var(--text-dim); }
+  .progress-label span:last-child {
+    color: var(--neon-green);
+    font-weight: 700;
+  }
+
+  .progress-bar {
+    height: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    width: 48%;
+    background: linear-gradient(90deg, var(--neon-green), var(--neon-purple));
+    border-radius: 100px;
+    box-shadow: 0 0 20px rgba(0,255,136,0.5);
+    animation: progressAnim 2s ease forwards;
+  }
+
+  @keyframes progressAnim {
+    from { width: 0; }
+    to { width: 48%; }
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 50px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: gap;
+    position: relative;
+    z-index: 1;
+  }
+
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    color: var(--neon-green);
+    letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(0,255,136,0.5);
+  }
+
+  .footer-tagline {
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    margin-top: 6px;
+  }
+
+  .footer-social {
+    display: flex;
+    gap: 20px;
+  }
+
+  .social-link {
+    color: var(--text-dim);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color 0.3s;
+  }
+
+  .social-link:hover { color: var(--neon-green); }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .feature-row { grid-template-columns: 1fr; gap: 30px; }
+    .feature-row.reverse { direction: ltr; }
+    .form-row { grid-template-columns: 1fr; }
+    footer { flex-direction: column; gap: 30px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">VIBE</div>
+  <a href="#waitlist" class="nav-badge">🔥 Early Access Lo</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-tag">🇵🇰 Pakistan Ka Apna Creator Platform</div>
+  <h1>
+    <div class="line1">CREATE.</div>
+    <div class="line2">CONNECT.</div>
+    <div class="line3">EARN.</div>
+  </h1>
+  <p class="hero-sub">
+    Wo platform jo <span>creators ko unka haq deta hai.</span><br>
+    Har view ka hisaab. Har mehnat ka inam.
+  </p>
+  <div class="hero-cta">
+    <a href="#waitlist"><button class="btn-primary">🚀 Waitlist Join Karo</button></a>
+    <a href="#features"><button class="btn-secondary">Features Dekho</button></a>
+  </div>
+  <div class="hero-counter">
+    <div class="counter-item">
+      <div class="counter-num">4,847</div>
+      <div class="counter-label">Waitlist Mein</div>
+    </div>
+    <div class="counter-item">
+      <div class="counter-num">10K</div>
+      <div class="counter-label">OG Spots Total</div>
+    </div>
+    <div class="counter-item">
+      <div class="counter-num">$0</div>
+      <div class="counter-label">Join Karne Ki Cost</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROBLEM -->
+<section class="section">
+  <div class="section-tag">⚠️ Problem</div>
+  <h2 class="section-title">TikTok Ne <br><span style="color:var(--neon-pink)">Dhoka Kiya.</span></h2>
+  <p style="color:var(--text-dim); max-width:600px; line-height:1.8; margin-bottom:60px;">
+    Tum ghanton mehnat karte ho. Videos banate ho. Audience banate ho.<br>
+    Aur badले mein? Almost kuch nahi.
+  </p>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="problem-icon">😤</div>
+      <h3>Creators Ko Paise Nahi Milte</h3>
+      <p>TikTok pe 1 million views ke baad bhi sirf $20-40 milte hain. Teri mehnat ki yeh qeemat?</p>
+      <div class="stat">$20 / 1M Views</div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">🤖</div>
+      <h3>Algorithm Ka Raja</h3>
+      <p>Kaun dekhe tumhara content — yeh tum decide nahi karte. Ek blind algorithm decide karta hai.</p>
+      <div class="stat">0% Control</div>
+    </div>
+    <div class="problem-card">
+      <div class="problem-icon">👥</div>
+      <h3>Real Connection Nahi</h3>
+      <p>Followers hain — lekin community nahi. Fans hain — lekin koi apna nahi. Sirf numbers hain.</p>
+      <div class="stat">Fake Community</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section class="features-section" id="features">
+  <div class="features-inner">
+    <div style="text-align:center; margin-bottom:80px;">
+      <div class="section-tag" style="text-align:center;">✅ Solution</div>
+      <h2 class="section-title">VIBE Mein <span style="color:var(--neon-green)">Sab Alag Hai</span></h2>
+    </div>
+
+    <!-- Feature 1 -->
+    <div class="feature-row">
+      <div class="feature-visual">
+        <span class="feature-big-icon">💰</span>
+        <div class="feature-visual-text">EARN DROP</div>
+        <div style="margin-top:20px; color:var(--text-dim); font-size:0.9rem;">Har 1000 views pe</div>
+        <div style="font-family:'Bebas Neue'; font-size:3rem; color:var(--neon-green); text-shadow: 0 0 20px rgba(0,255,136,0.6);">$1 — Guaranteed</div>
+      </div>
+      <div class="feature-content">
+        <div class="feature-num">01 — EARNING</div>
+        <h2>Har View Ka <em>Hisaab</em> Hoga</h2>
+        <p>TikTok mein views aate hain, paise nahi. VIBE mein har genuine view directly tumhare wallet mein jata hai. Koi minimum nahi. Koi wait nahi.</
